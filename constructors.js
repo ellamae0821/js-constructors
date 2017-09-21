@@ -10,6 +10,15 @@
  * @property {string} description
  * @method   getDetails
  */
+function Spell (name, cost, description){
+   this.name = name;
+   this.cost = cost;
+   this.description = description;
+   }
+
+   Spell.prototype.getDetails = function(){
+      return this.name + " " + this.cost + " " + this.description;
+   };
 
   /**
    * Returns a string of all of the spell's details.
@@ -18,6 +27,8 @@
    * @name getDetails
    * @return {string} details containing all of the spells information.
    */
+
+
 
 /**
  * A spell that deals damage.
@@ -44,6 +55,15 @@
  * @property {string} description
  */
 
+function DamageSpell(name, cost, damage, description){
+   Spell.call(this, name, cost, description);
+   this.damage = damage;
+}
+
+DamageSpell.prototype = Object.create(Spell.prototype, {
+   constructor: DamageSpell});
+
+
 /**
  * Now that you've created some spells, let's create
  * `Spellcaster` objects that can use them!
@@ -61,6 +81,25 @@
  * @method  invoke
  */
 
+
+function Spellcaster (name, health, mana){
+   this.name = name;
+   this.health = health;
+   this.mana = mana;
+   this.isAlive = true;
+
+}
+
+Spellcaster.prototype.inflictDamage = function (damage){
+   this.damage = damage;
+   this.health -= this.damage;
+   if(this.health <= 0){
+      this.isAlive = false;
+      this.health = 0;
+   }
+};
+
+
   /**
    * @method inflictDamage
    *
@@ -71,6 +110,15 @@
    *
    * @param  {number} damage  Amount of damage to deal to the spellcaster
    */
+Spellcaster.prototype.spendMana = function (cost){
+   if(this.mana >= cost){
+      this.cost = cost;
+      this.mana -= cost;
+      return true;
+   }else{
+      return false;
+   }
+};
 
   /**
    * @method spendMana
@@ -81,6 +129,45 @@
    * @param  {number} cost      The amount of mana to spend.
    * @return {boolean} success  Whether mana was successfully spent.
    */
+
+Spellcaster.prototype.invoke = function (spell, target){
+   if (spell instanceof Spell === false || spell ===null){
+      return false;
+   }else{
+      if(this.mana >= spell.cost && spell instanceof DamageSpell){
+         if(target===undefined || target === null){
+            return false;
+         }target.inflictDamage(spell.damage);
+         this.spendMana(spell.cost);
+         return true;
+      }else if(this.mana >= spell.cost){
+         this.spendMana(spell.cost);
+         return true;
+      }
+   }
+
+
+
+};
+/*
+USE `inflictDamage`, `spendMana`
+IF 1-DamageSpell && 2nd param -Spellcaster ,
+   health -= damage value
+      else
+         false
+
+If spellcaster has enough mana{
+   cast spell;
+   lose mana;
+   return true;
+}
+   if not enough mana return false
+
+
+
+*/
+
+
 
   /**
    * @method invoke
